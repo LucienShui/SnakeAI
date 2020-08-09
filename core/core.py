@@ -9,7 +9,7 @@ class GameBoard(object):
     def __init__(self, width: int, height: int):
         self.width = width
         self.height = height
-        self.data: typing.List[typing.List[int]] = [[0 for j in range(self.width)] for i in range(self.height)]
+        self.data: typing.List[typing.List[int]] = [[0 for _ in range(self.width)] for _ in range(self.height)]
 
     def clear(self):
         """
@@ -100,13 +100,15 @@ class Game(object):
 
         return Apple(random.choice(candidate_point))
 
-    def step(self, action: int) -> (typing.List[typing.List[int]], bool):
+    def step(self, action: int) -> (typing.List[typing.List[int]], int, bool, typing.Any):
         """
         走一步
-        :param action:
+        :param action: 执行的动作，详见 self.action_space
         :return:
-            game_board: typing.List[typing.List[int]] 游戏画布
+            observation: typing.List[typing.List[int]] 游戏画布
+            reward: int 奖励，如果吃到果子会是 1，反之是 0
             is_crash: bool 游戏是否结束
+            info: typing.Any 可以是任何附加信息
         """
         self.game_board.clear()
 
@@ -115,7 +117,7 @@ class Game(object):
         eat_apple: bool = self.snake.move(self.apple)
 
         if self.is_crash():
-            return self.game_board.data, True
+            return self.game_board.data, -1, True, None
 
         self.game_board.draw_points(self.snake.points)
 
@@ -125,4 +127,4 @@ class Game(object):
 
         self.game_board.draw_point(self.apple.position)
 
-        return self.game_board.data, False
+        return self.game_board.data, int(eat_apple), False, None

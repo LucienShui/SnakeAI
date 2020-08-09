@@ -58,7 +58,7 @@ class CursesSnake(object):
             # Get last pressed key
             key = screen.getch()
 
-            board, done = snake.step(self.key2direction.get(key, Snake.action_space.NONE))
+            board, reward, done, info = snake.step(self.key2direction.get(key, Snake.action_space.NONE))
 
             if done:
                 break

@@ -15,16 +15,16 @@ class SnakeTestCase(unittest.TestCase):
         }
 
         test_case_set: typing.List[typing.Tuple[int, int, str, int]] = [
-            (5, 5, '...', 1),
-            (5, 5, 'aaa', 1),
-            (5, 5, '..w', 0),
+            (5, 5, '....', 1),
+            (5, 5, 'aaaa', 1),
+            (5, 5, '...w', 0),
         ]
 
         for width, height, keys, expected in test_case_set:
             game: Snake = Snake(width, height)
             flag = -1
             for key in keys:
-                _, is_crash = game.step(key2direction.get(key, Snake.action_space.NONE))
+                observation, reward, is_crash, info = game.step(key2direction.get(key, Snake.action_space.NONE))
                 flag = 1 if is_crash else 0
             self.assertEqual(expected, flag)
 
