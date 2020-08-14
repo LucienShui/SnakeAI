@@ -28,6 +28,18 @@ class SnakeTestCase(unittest.TestCase):
                 flag = 1 if is_crash else 0
             self.assertEqual(expected, flag)
 
+    def test_matrix_value_dict(self):
+        n: int = 10
+        q: typing.Dict[typing.Tuple, int] = {}
+        matrix_list: typing.List[typing.List[typing.Tuple]] = []
+
+        for i in range(n):
+            matrix_list.append([tuple([i, i + 1]), tuple([i + 2, i + 3])])
+            q[tuple(matrix_list[i])] = i
+
+        for i in range(n):
+            self.assertEqual(i, q[tuple(matrix_list[i])])
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -6,18 +6,17 @@ from .snake import Apple, Point, Snake, Action
 
 class GameBoard(object):
 
-    def __init__(self, width: int, height: int):
-        self.width = width
-        self.height = height
-        self.data: typing.List[typing.List[int]] = [[0 for _ in range(self.width)] for _ in range(self.height)]
+    def __init__(self, shape: typing.Tuple[int, int]):
+        self.shape = shape
+        self.data: typing.List[typing.List[int]] = [[0 for _ in range(self.shape[1])] for _ in range(self.shape[0])]
 
     def clear(self):
         """
         清除画布
         :return: None
         """
-        for i in range(self.height):
-            for j in range(self.width):
+        for i in range(self.shape[0]):
+            for j in range(self.shape[1]):
                 self.data[i][j] = 0
 
     def draw_points(self, points: typing.List[Point]) -> None:
@@ -45,15 +44,14 @@ class Game(object):
     action_space: Action = Action
     point_type_space: Point.Type = Point.Type
 
-    def __init__(self, width: int, height: int, length: int = 2):
+    def __init__(self, shape: typing.Tuple[int, int], length: int = 2):
         # 初始画布
-        self.width: int = width
-        self.height: int = height
+        self.shape = shape
         self.init_length: int = length
-        self.game_board: GameBoard = GameBoard(width, height)
+        self.game_board: GameBoard = GameBoard(self.shape)
 
         # 蛇
-        self.snake: Snake = Snake(self.width >> 1, (self.height >> 1) - self.init_length + 1, self.init_length)
+        self.snake: Snake = Snake(self.shape[1] >> 1, (self.shape[0] >> 1) - self.init_length + 1, self.init_length)
         self.game_board.draw_points(self.snake.points)
 
         # 初始化蛇之后才能初始化苹果
@@ -65,7 +63,7 @@ class Game(object):
     def __str__(self):
         return '\n'.join([
             '  '.join([
-                self.game_board[i][j].__str__() for j in range(self.width)]) for i in range(self.height)])
+                self.game_board[i][j].__str__() for j in range(self.shape[1])]) for i in range(self.shape[0])])
 
     @property
     def length(self) -> int:
@@ -77,7 +75,7 @@ class Game(object):
         :param point: 点
         :return: 是 or 否
         """
-        return not (0 <= point.x < self.width and 0 <= point.y < self.height)
+        return not (0 <= point.x < self.shape[0] and 0 <= point.y < self.shape[1])
 
     def is_crash(self) -> bool:
         """
@@ -93,8 +91,8 @@ class Game(object):
 
         candidate_point: typing.List[Point] = []
 
-        for i in range(self.height):
-            for j in range(self.width):
+        for i in range(self.shape[0]):
+            for j in range(self.shape[1]):
                 if self.game_board[i][j] == 0:
                     candidate_point.append(Point(i, j, Point.Type.APPLE))
 
@@ -117,13 +115,17 @@ class Game(object):
         eat_apple: bool = self.snake.move(self.apple)
 
         if self.is_crash():
-            return self.game_board.data, -1, True, None
+            return self.game_board.data, -0x3f3f3f3f, True, None
 
         self.game_board.draw_points(self.snake.points)
 
         if eat_apple:
-            self.apple = self.get_apple()
             self.score += 1
+
+            if self.length == self.shape[1] * self.shape[0]:
+                return self.game_board.data, 0x3f3f3f3f, True, None
+
+            self.apple = self.get_apple()
 
         self.game_board.draw_point(self.apple.position)
 
