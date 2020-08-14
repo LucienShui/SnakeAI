@@ -14,14 +14,14 @@ class SnakeTestCase(unittest.TestCase):
             'd': Snake.action_space.RIGHT
         }
 
-        test_case_set: typing.List[typing.Tuple[int, int, str, int]] = [
-            (5, 5, '....', 1),
-            (5, 5, 'aaaa', 1),
-            (5, 5, '...w', 0),
+        test_case_set: typing.List[typing.Tuple[typing.Tuple[int, int], str, int]] = [
+            ((5, 5), '....', 1),
+            ((5, 5), 'aaaa', 1),
+            ((5, 5), '...w', 0),
         ]
 
-        for width, height, keys, expected in test_case_set:
-            game: Snake = Snake(width, height)
+        for shape, keys, expected in test_case_set:
+            game: Snake = Snake(shape)
             flag = -1
             for key in keys:
                 observation, reward, is_crash, info = game.step(key2direction.get(key, Snake.action_space.NONE))
