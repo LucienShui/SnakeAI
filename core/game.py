@@ -1,7 +1,8 @@
 import random
 import typing
 
-from .snake import Apple, Point, Snake, Action
+from .base import Action, Point
+from .snake import Apple, Snake
 
 
 class GameBoard(object):

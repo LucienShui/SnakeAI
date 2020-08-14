@@ -48,6 +48,13 @@ class CursesSnake(object):
                  initial_frequency: float = 500,
                  frequency_decay: float = .9,
                  display_info: bool = True):
+        """
+        create snake with curses
+        :param shape: games shape
+        :param initial_frequency: the frequency of flushing screen, only required when playing manually
+        :param frequency_decay: decay of frequency, only required when playing manually
+        :param display_info: display game level and snake's length on the right conner or not
+        """
         self.shape = shape
         self.initial_frequency: float = initial_frequency
         self.frequency_decay: float = frequency_decay
@@ -68,7 +75,7 @@ class CursesSnake(object):
         self.screen.timeout(0)
 
         # draw bound
-        self.draw_bound(self.screen)
+        self.__draw_bound(self.screen)
 
         # game screen
         self.game_screen: CursesSubWindow = CursesSubWindow(self.screen, self.shape[0], self.shape[1] * 2 - 1, 1, 1)
@@ -92,7 +99,7 @@ class CursesSnake(object):
         curses.nocbreak()
         curses.endwin()
 
-    def draw_bound(self, screen):
+    def __draw_bound(self, screen):
         upper_bar = '⎽' * (self.shape[1] * 2 - 1)
         lower_bar = '⎺' * (self.shape[1] * 2 - 1)
 
@@ -105,17 +112,17 @@ class CursesSnake(object):
         for i in range(self.shape[0]):
             screen.addstr(i + 1, 0, col_char + ' ' * (self.shape[1] * 2 - 1) + col_char)
 
-    def level_up(self):
+    def __level_up(self):
         self.level += 1
         self.required_score <<= 1
 
-    def update_info(self, length, level):
+    def __update_info(self, length, level):
         self.info_screen.add_str(1, 0, str(level))
         self.info_screen.add_str(3, 0, str(length))
 
     def render(self):
         if self.display_info:
-            self.update_info(self.snake.length, self.level)
+            self.__update_info(self.snake.length, self.level)
 
         for idx, row in enumerate(self.snake.game_board.data):
             self.game_screen.add_str(idx, 0, ' '.join([self.type2str[each] for each in row]))
@@ -123,14 +130,7 @@ class CursesSnake(object):
         # Render field
         self.screen.refresh()
 
-    def step(self, action: int) -> (typing.List[typing.List[int]], int, bool, typing.Any):
-        return self.snake.step(action)
-
-    def reset(self) -> typing.List[typing.List[int]]:
-        self.snake: Snake = Snake(self.shape)
-        return self.snake.game_board.data
-
-    def main(self):
+    def run(self):
 
         while True:
             # Get last pressed key
@@ -139,7 +139,7 @@ class CursesSnake(object):
             board, reward, done, info = self.step(self.key2direction.get(key, Snake.action_space.NONE))
 
             if self.snake.length == self.required_score:
-                self.level_up()
+                self.__level_up()
 
             self.render()
 
@@ -147,6 +147,3 @@ class CursesSnake(object):
                 break
 
             time.sleep(self.frequency / 1000)
-
-    def run(self):
-        self.main()
