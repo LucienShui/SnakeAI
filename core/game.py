@@ -11,7 +11,7 @@ class GameBoard(object):
         self.shape = shape
         self.data: typing.List[typing.List[int]] = [[0 for _ in range(self.shape[1])] for _ in range(self.shape[0])]
 
-    def clear(self):
+    def reset(self):
         """
         清除画布
         :return: None
@@ -99,24 +99,41 @@ class Game(object):
 
         return Apple(random.choice(candidate_point))
 
-    def step(self, action: int) -> (typing.List[typing.List[int]], int, bool, typing.Any):
+    @property
+    def info(self) -> dict:
+        return {
+                'length': self.length,
+                'direction': self.snake.direction,
+                'bodies': [
+                    {
+                        'x': point.x,
+                        'y': point.y
+                    } for point in self.snake
+                ],
+                'apple': {
+                    'x': self.apple.position.x,
+                    'y': self.apple.position.y,
+                }
+            }
+
+    def step(self, action: int) -> (typing.List[typing.List[int]], float, bool, typing.Any):
         """
         走一步
         :param action: 执行的动作，详见 self.action_space
         :return:
             observation: typing.List[typing.List[int]] 游戏画布
-            reward: int 奖励，如果吃到果子会是 1，反之是 0
+            reward: int 奖励，如果吃到果子会是 1，反之是 0.1，如果达到最大长度是正无穷，死亡是负 -1
             is_crash: bool 游戏是否结束
             info: typing.Any 可以是任何附加信息
         """
-        self.game_board.clear()
+        self.game_board.reset()
 
         if action != Action.NONE:
             self.snake.change_direction(action)
         eat_apple: bool = self.snake.move(self.apple)
 
         if self.is_crash():
-            return self.game_board.data, -0x3f3f3f3f, True, None
+            return self.game_board.data, -1, True, self.info
 
         self.game_board.draw_points(self.snake.points)
 
@@ -124,10 +141,10 @@ class Game(object):
             self.score += 1
 
             if self.length == self.shape[1] * self.shape[0]:
-                return self.game_board.data, 0x3f3f3f3f, True, None
+                return self.game_board.data, 0x3f3f3f3f, True, self.info
 
             self.apple = self.get_apple()
 
         self.game_board.draw_point(self.apple.position)
 
-        return self.game_board.data, int(eat_apple), False, None
+        return self.game_board.data, 1 if eat_apple else 0.1, False, self.info

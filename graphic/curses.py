@@ -45,7 +45,7 @@ class CursesSnake(object):
 
     def __init__(self,
                  shape: typing.Tuple[int, int] = (4, 4),
-                 initial_frequency: float = 500,
+                 initial_frequency: float = 800,
                  frequency_decay: float = .9,
                  display_info: bool = True):
         """
@@ -62,8 +62,7 @@ class CursesSnake(object):
 
         self.snake: Snake = Snake(self.shape)
 
-        # the score required by next level
-        self.required_score: int = 4
+        # game level
         self.level: int = 1
 
         # initial curses
@@ -91,13 +90,22 @@ class CursesSnake(object):
 
     @property
     def frequency(self) -> float:
-        return self.initial_frequency * (self.frequency_decay ** self.level)
+        return self.initial_frequency * (self.frequency_decay ** (self.level - 1))
+
+    @property
+    def required_score(self):
+        return 2 << self.level
+
+    def reset(self):
+        self.snake = Snake(self.shape)
+        self.level = 1
 
     def close(self):
-        self.screen.keypad(False)
-        curses.echo()
-        curses.nocbreak()
-        curses.endwin()
+        if self.screen is not None:
+            self.screen.keypad(False)
+            curses.echo()
+            curses.nocbreak()
+            curses.endwin()
 
     def __draw_bound(self, screen):
         upper_bar = '⎽' * (self.shape[1] * 2 - 1)
@@ -111,10 +119,6 @@ class CursesSnake(object):
 
         for i in range(self.shape[0]):
             screen.addstr(i + 1, 0, col_char + ' ' * (self.shape[1] * 2 - 1) + col_char)
-
-    def __level_up(self):
-        self.level += 1
-        self.required_score <<= 1
 
     def __update_info(self, length, level):
         self.info_screen.add_str(1, 0, str(level))
@@ -136,10 +140,10 @@ class CursesSnake(object):
             # Get last pressed key
             key = self.screen.getch()
 
-            board, reward, done, info = self.step(self.key2direction.get(key, Snake.action_space.NONE))
+            board, reward, done, info = self.snake.step(self.key2direction.get(key, Snake.action_space.NONE))
 
             if self.snake.length == self.required_score:
-                self.__level_up()
+                self.level += 1
 
             self.render()
 
