@@ -5,13 +5,13 @@ import unittest
 class SnakeTestCase(unittest.TestCase):
 
     def test_snake(self):
-        from core import Snake
+        from core import Snake, Action
 
         key2direction: typing.Dict[str, int] = {
-            'w': Snake.action_space.UP,
-            's': Snake.action_space.DOWN,
-            'a': Snake.action_space.LEFT,
-            'd': Snake.action_space.RIGHT
+            'w': Action.UP,
+            's': Action.DOWN,
+            'a': Action.LEFT,
+            'd': Action.RIGHT
         }
 
         test_case_set: typing.List[typing.Tuple[typing.Tuple[int, int], str, int]] = [
@@ -24,7 +24,7 @@ class SnakeTestCase(unittest.TestCase):
             game: Snake = Snake(shape)
             flag = -1
             for key in keys:
-                observation, reward, is_crash, info = game.step(key2direction.get(key, Snake.action_space.NONE))
+                observation, reward, is_crash, info = game.step(key2direction.get(key, Action.NONE))
                 flag = 1 if is_crash else 0
             self.assertEqual(expected, flag)
 

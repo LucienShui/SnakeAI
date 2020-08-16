@@ -15,18 +15,19 @@ class DeepQLearningNetwork(AbstractDeepQLearningNetwork):
 
     def observation_list_preprocessor(self, observation_list: numpy.ndarray) -> numpy.ndarray:
         shape: list = list(observation_list.shape) + [1]
-        return observation_list.reshape(shape) / 4
+        return observation_list.reshape(shape) / 5
 
     @classmethod
     def init_model(cls, input_shape: typing.Tuple[int, int], output_dim: int,
                    learning_rate: float = 1e-4) -> keras.Model:
         model: keras.Model = keras.models.Sequential([
-            keras.layers.Conv2D(8, (3, 3), activation=keras.activations.relu,
-                                input_shape=(input_shape[0], input_shape[1], 1)),
-            keras.layers.MaxPooling2D(2, 2),
-
-            keras.layers.Dropout(.5),
-            keras.layers.Flatten(),
+            # keras.layers.Conv2D(8, (3, 3), activation=keras.activations.relu,
+            #                     input_shape=(input_shape[0], input_shape[1], 1)),
+            # keras.layers.MaxPooling2D(2, 2),
+            #
+            # keras.layers.Dropout(.5),
+            # keras.layers.Flatten(),
+            keras.layers.Flatten(input_shape=(input_shape[0], input_shape[1], 1)),
 
             keras.layers.Dense(64, activation=keras.activations.relu),
             keras.layers.Dense(32, activation=keras.activations.relu),

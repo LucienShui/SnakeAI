@@ -2,7 +2,7 @@ import curses
 import time
 import typing
 
-from core import Snake
+from core import Snake, Action, Point
 
 
 class CursesSubWindow(object):
@@ -29,18 +29,18 @@ class CursesSubWindow(object):
 
 class CursesSnake(object):
     key2direction: typing.Dict[int, int] = {
-        curses.KEY_UP: Snake.action_space.UP,
-        curses.KEY_DOWN: Snake.action_space.DOWN,
-        curses.KEY_LEFT: Snake.action_space.LEFT,
-        curses.KEY_RIGHT: Snake.action_space.RIGHT
+        curses.KEY_UP: Action.UP,
+        curses.KEY_DOWN: Action.DOWN,
+        curses.KEY_LEFT: Action.LEFT,
+        curses.KEY_RIGHT: Action.RIGHT
     }
 
     type2str: typing.Dict[int, str] = {
-        Snake.point_type_space.NONE: ' ',
-        Snake.point_type_space.HEAD: 'O',
-        Snake.point_type_space.BODY: '*',
-        Snake.point_type_space.TAIL: 'o',
-        Snake.point_type_space.APPLE: '@'
+        Point.Type.NONE: ' ',
+        Point.Type.HEAD: 'O',
+        Point.Type.BODY: '*',
+        Point.Type.TAIL: 'o',
+        Point.Type.APPLE: '@'
     }
 
     def __init__(self,
@@ -151,7 +151,7 @@ class CursesSnake(object):
             # Get last pressed key
             key = self.screen.getch()
 
-            board, reward, done, info = self.snake.step(self.key2direction.get(key, Snake.action_space.NONE))
+            board, reward, done, info = self.snake.step(self.key2direction.get(key, Action.NONE))
 
             if self.snake.length == self.required_score:
                 self.level += 1

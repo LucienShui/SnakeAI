@@ -3,7 +3,7 @@ from __future__ import absolute_import, print_function
 import typing
 
 import gym
-from core import Snake
+from core import Action
 from graphic import CursesSnake
 
 
@@ -19,7 +19,7 @@ class SnakeEnv(gym.Env):
         self.shape = shape
         self.curses_snake: CursesSnake = ...
 
-        action_space = Snake.action_space
+        action_space = Action
         up, down, left, right, none = (action_space.UP, action_space.DOWN, action_space.LEFT,
                                        action_space.RIGHT, action_space.NONE)
 

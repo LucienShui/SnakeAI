@@ -1,1 +1,1 @@
-from .game import Game as Snake, Action
+from .game import Game as Snake, Action, Point

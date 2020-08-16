@@ -27,7 +27,7 @@ class Snake(object):
         for i in range(1, self.length - 1):
             self.points.append(Point(self.initial_x, self.initial_y - i))
 
-        self.points.append(Point(self.initial_x, self.initial_y + self.length - 1, Point.Type.TAIL))
+        self.points.append(Point(self.initial_x, self.initial_y - self.length + 1, Point.Type.TAIL))
 
         self.delta: Point = Point(0, 1, Point.Type.DIRECT)
         self.direction: int = Action.RIGHT
