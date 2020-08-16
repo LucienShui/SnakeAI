@@ -1,12 +1,12 @@
 import typing
 import unittest
 
-from core import Snake
-
 
 class SnakeTestCase(unittest.TestCase):
 
     def test_snake(self):
+        from core import Snake
+
         key2direction: typing.Dict[str, int] = {
             'w': Snake.action_space.UP,
             's': Snake.action_space.DOWN,
@@ -39,6 +39,32 @@ class SnakeTestCase(unittest.TestCase):
 
         for i in range(n):
             self.assertEqual(i, q[tuple(matrix_list[i])])
+
+    def test_copy_call(self):
+        import copy
+
+        class Object(object):
+            def __init__(self):
+                self.__data__ = [1, 2, 3]
+
+            @property
+            def data(self):
+                return copy.deepcopy(self.__data__)
+
+        obj = Object()
+
+        self.assertNotEqual(id(obj.__data__), id(obj.data))
+
+    def test_string_to_tuple(self):
+        import re
+
+        string = '(2, 3)'
+        result = tuple(map(int, re.findall(r'\d+', string)))
+
+        self.assertEqual(tuple, type(result))
+        self.assertEqual(2, len(result))
+        self.assertEqual(2, result[0])
+        self.assertEqual(3, result[1])
 
 
 if __name__ == '__main__':

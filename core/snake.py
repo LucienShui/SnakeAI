@@ -11,15 +11,26 @@ class Apple(object):
 class Snake(object):
 
     def __init__(self, x: int, y: int, length: int = 2):
-        self.points: typing.List[Point] = [Point(x, y, Point.Type.HEAD)]
+        self.length: int = length
+        self.initial_x: int = x
+        self.initial_y: int = y
 
-        for i in range(1, length - 1):
-            self.points.append(Point(x, y - i))
+        self.points: typing.List[Point] = ...
+        self.delta: Point = ...
+        self.direction: int = ...
 
-        self.points.append(Point(x, y + length - 1, Point.Type.TAIL))
+        self.reset()
+
+    def reset(self):
+        self.points: typing.List[Point] = [Point(self.initial_x, self.initial_y, Point.Type.HEAD)]
+
+        for i in range(1, self.length - 1):
+            self.points.append(Point(self.initial_x, self.initial_y - i))
+
+        self.points.append(Point(self.initial_x, self.initial_y + self.length - 1, Point.Type.TAIL))
 
         self.delta: Point = Point(0, 1, Point.Type.DIRECT)
-        self.direction = Action.RIGHT
+        self.direction: int = Action.RIGHT
 
     def move(self, apple: Apple) -> bool:
         self.points.insert(0, self.points[0] + self.delta)

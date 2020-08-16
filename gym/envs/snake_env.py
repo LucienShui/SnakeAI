@@ -3,6 +3,7 @@ from __future__ import absolute_import, print_function
 import typing
 
 import gym
+from core import Snake
 from graphic import CursesSnake
 
 
@@ -16,11 +17,11 @@ class SnakeEnv(gym.Env):
 
     def __init__(self, shape: [typing.List[int], typing.Tuple[int, int]] = (4, 4)):
         self.shape = shape
-        self.curses_snake: CursesSnake = CursesSnake(shape)
+        self.curses_snake: CursesSnake = ...
 
-        game_action_space = self.curses_snake.snake.action_space
-        up, down, left, right, none = (game_action_space.UP, game_action_space.DOWN, game_action_space.LEFT,
-                                       game_action_space.RIGHT, game_action_space.NONE)
+        action_space = Snake.action_space
+        up, down, left, right, none = (action_space.UP, action_space.DOWN, action_space.LEFT,
+                                       action_space.RIGHT, action_space.NONE)
 
         self.direction_env_action_to_game_action: typing.Dict[int, typing.List[int]] = {
             up: [none, left, right],
@@ -28,6 +29,7 @@ class SnakeEnv(gym.Env):
             left: [none, down, up],
             right: [none, up, down]
         }
+        self.reset()
 
     def reset(self) -> typing.List[typing.List[int]]:
         self.curses_snake = CursesSnake(self.shape)

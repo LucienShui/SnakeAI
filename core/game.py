@@ -1,6 +1,7 @@
 import random
 import typing
 
+import copy
 from .base import Action, Point
 from .snake import Apple, Snake
 
@@ -9,7 +10,11 @@ class GameBoard(object):
 
     def __init__(self, shape: typing.Tuple[int, int]):
         self.shape = shape
-        self.data: typing.List[typing.List[int]] = [[0 for _ in range(self.shape[1])] for _ in range(self.shape[0])]
+        self.__data: typing.List[typing.List[int]] = [[0 for _ in range(self.shape[1])] for _ in range(self.shape[0])]
+
+    @property
+    def data(self):
+        return copy.deepcopy(self.__data)
 
     def reset(self):
         """
@@ -18,7 +23,7 @@ class GameBoard(object):
         """
         for i in range(self.shape[0]):
             for j in range(self.shape[1]):
-                self.data[i][j] = 0
+                self.__data[i][j] = 0
 
     def draw_points(self, points: typing.List[Point]) -> None:
         """
@@ -35,7 +40,7 @@ class GameBoard(object):
         :param point: Point List
         :return: None
         """
-        self.data[point.x][point.y] = point.type
+        self.__data[point.x][point.y] = point.type
 
     def __getitem__(self, index) -> typing.List[int]:
         return self.data[index]
@@ -49,7 +54,17 @@ class Game(object):
         # 初始画布
         self.shape = shape
         self.init_length: int = length
+
         self.game_board: GameBoard = GameBoard(self.shape)
+
+        self.snake: Snake = ...
+        self.apple: Apple = ...
+        self.score: int = ...
+
+        self.reset()
+
+    def reset(self):
+        self.game_board.reset()
 
         # 蛇
         self.snake: Snake = Snake(self.shape[1] >> 1, (self.shape[0] >> 1) - self.init_length + 1, self.init_length)
@@ -147,4 +162,4 @@ class Game(object):
 
         self.game_board.draw_point(self.apple.position)
 
-        return self.game_board.data, 1 if eat_apple else 0.1, False, self.info
+        return self.game_board.data, 1 if eat_apple else 0, False, self.info

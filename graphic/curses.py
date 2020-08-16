@@ -46,7 +46,7 @@ class CursesSnake(object):
     def __init__(self,
                  shape: typing.Tuple[int, int] = (4, 4),
                  initial_frequency: float = 800,
-                 frequency_decay: float = .9,
+                 frequency_decay: float = .6,
                  display_info: bool = True):
         """
         create snake with curses
@@ -65,6 +65,11 @@ class CursesSnake(object):
         # game level
         self.level: int = 1
 
+        self.screen = None
+        self.game_screen: CursesSubWindow = ...
+        self.info_screen: CursesSubWindow = ...
+
+    def init_curses(self):
         # initial curses
         self.screen = curses.initscr()
         curses.noecho()
@@ -125,6 +130,9 @@ class CursesSnake(object):
         self.info_screen.add_str(3, 0, str(length))
 
     def render(self):
+        if self.screen is None:
+            self.init_curses()
+
         if self.display_info:
             self.__update_info(self.snake.length, self.level)
 
@@ -136,7 +144,10 @@ class CursesSnake(object):
 
     def run(self):
 
+        self.init_curses()
+
         while True:
+
             # Get last pressed key
             key = self.screen.getch()
 
