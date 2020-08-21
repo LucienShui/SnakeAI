@@ -2,6 +2,8 @@ from __future__ import absolute_import, print_function
 
 import re
 import sys
+import queue
+import time
 
 from agent import DeepQLearningNetwork
 from graphic import CursesSnake
@@ -18,30 +20,69 @@ def custom_reward(info: dict) -> float:
     return (1 / (abs(snake_x - apple_x) + abs(snake_y - apple_y))) * .5
 
 
-def agent_play(shape: tuple, render: bool = False, training: bool = False):
+def agent_play(shape: tuple, render: bool = False):
     env = SnakeEnv(shape)
 
     dqn = DeepQLearningNetwork(shape,
                                len(env.action_space),
-                               initial_epsilon=.0,
+                               initial_epsilon=.9,
                                batch_size=32,
                                queue_size=1 << 8)
 
-    if not training:
-        dqn.load_model('model.h5')
+    dqn.load_model('model.h5')
+
+    observation = env.reset()
+    while True:
+        if render:
+            env.render()
+        action = dqn.action(observation)
+        next_observation, reward, done, info = env.step(action)
+
+        observation = next_observation
+        if done:
+            break
+
+        time.sleep(50 / 1000)
+
+    env.close()
+
+
+def train(shape: tuple, render: bool = False):
+    env = SnakeEnv(shape)
+
+    dqn = DeepQLearningNetwork(shape,
+                               len(env.action_space),
+                               initial_epsilon=.9,
+                               batch_size=32,
+                               queue_size=1 << 8)
 
     best_score: int = 0
 
     for i_episode in range(2000):
         observation = env.reset()
+        action_cnt: int = 0
+        action_queue: queue.Queue = queue.Queue()
         for t in range(1000):
             if render:
                 env.render()
-            action = dqn.greedy_action(observation) if training else dqn.action(observation)
-            next_observation, reward, done, info = env.step(action)
+            action = dqn.greedy_action(observation)
 
-            if training:
-                dqn.fit(observation, reward, done, action, next_observation)
+            next_observation, reward, done, info = env.step(action)
+            action_cnt = 0 if reward > 0 else action_cnt + 1
+
+            # 如果无用步数过多则提前结束
+            if action_cnt > shape[0] * shape[1] * 2:
+                done = True
+
+            # 如果原地转圈则提前结束
+            action_queue.put(action)
+            while action_queue.qsize() > 4:
+                action_queue.get()
+
+            if action_queue.qsize() == 4 and set(action_queue.queue).__len__() == 1 and action_queue.queue[0] != 0:
+                done = True
+
+            dqn.fit(observation, reward, done, action, next_observation)
 
             observation = next_observation
             if done:
@@ -53,8 +94,7 @@ def agent_play(shape: tuple, render: bool = False, training: bool = False):
                 break
     env.close()
 
-    if training:
-        dqn.save('model.h5')
+    dqn.save('model.h5')
 
 
 def main():
@@ -77,8 +117,10 @@ def main():
 
     if human:
         CursesSnake(shape).run()
+    elif training:
+        train(shape, render=render)
     else:
-        agent_play(shape, render=render, training=training)
+        agent_play(shape, render=render)
 
 
 if __name__ == '__main__':

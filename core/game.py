@@ -156,10 +156,10 @@ class Game(object):
             self.score += 1
 
             if self.length == self.shape[1] * self.shape[0]:
-                return self.game_board.data, 0x3f3f3f3f, True, self.info
+                return self.game_board.data, 1, True, self.info
 
             self.apple = self.get_apple()
 
         self.game_board.draw_point(self.apple.position)
 
-        return self.game_board.data, 1 if eat_apple else 0, False, self.info
+        return self.game_board.data, 1 if eat_apple else -1, False, self.info
