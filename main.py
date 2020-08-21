@@ -1,11 +1,17 @@
 from __future__ import absolute_import, print_function
 
+import logging
+import curses
 import re
 import sys
 
 from agent import DeepQLearningNetwork
 from graphic import CursesSnake
 from gym.envs import SnakeEnv
+
+logger: logging.Logger = logging.getLogger('main')
+logging.basicConfig()
+logger.setLevel(logging.DEBUG)
 
 
 def custom_reward(info: dict) -> float:
@@ -19,13 +25,17 @@ def custom_reward(info: dict) -> float:
 
 
 def agent_play(shape: tuple, render: bool = False, training: bool = False):
+    logger.debug('create env start')
     env = SnakeEnv(shape)
+    logger.debug('create env finished')
 
+    logger.debug('create dqn start')
     dqn = DeepQLearningNetwork(shape,
                                len(env.action_space),
                                initial_epsilon=.0,
                                batch_size=32,
                                queue_size=1 << 8)
+    logger.debug('create dqn finished')
 
     if not training:
         dqn.load_model('model.h5')
@@ -58,6 +68,8 @@ def agent_play(shape: tuple, render: bool = False, training: bool = False):
 
 
 def main():
+    logger.debug('main() start')
+
     config = {
         'shape': '(9, 9)',
         'human': 'false',
@@ -75,8 +87,13 @@ def main():
     render: bool = config['render'][0] in ['t', '1']
     training: bool = config['training'][0] in ['t', '1']
 
+    logger.debug(f'shape = {shape}, human = {human}, render = {render}, training = {training}')
+
     if human:
-        CursesSnake(shape).run()
+        def temp_func(screen):
+            CursesSnake(screen, shape).run()
+
+        curses.wrapper(temp_func)
     else:
         agent_play(shape, render=render, training=training)
 

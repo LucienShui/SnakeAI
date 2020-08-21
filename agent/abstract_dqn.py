@@ -2,6 +2,7 @@ from __future__ import absolute_import, print_function
 
 import random
 import typing
+import logging
 from queue import Queue
 
 import numpy
@@ -20,6 +21,11 @@ class AbstractDeepQLearningNetwork(object):
                  epsilon_decay: float = 1e-4,
                  learning_rate: float = 1e-4):
 
+        kwargs: dict = locals()
+        self.logger: logging.Logger = logging.getLogger(self.__class__.__name__)
+        self.logger.setLevel(logging.INFO)
+        self.logger.debug(f'init with kwargs = {kwargs}')
+
         self.observation_shape: tuple = observation_shape
         self.action_dim: int = action_dim
         self.gamma: float = gamma
@@ -31,7 +37,9 @@ class AbstractDeepQLearningNetwork(object):
 
         self.time_step: int = 0
         self.queue: Queue = Queue()
+
         self.model = self.init_model(self.observation_shape, self.action_dim, self.learning_rate)
+        self.logger.debug('init finished')
 
     @classmethod
     def init_model(cls, input_shape: tuple, output_dim: int,

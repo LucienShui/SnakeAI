@@ -1,6 +1,7 @@
 from __future__ import absolute_import, print_function
 
 import typing
+import logging
 
 import gym
 from core import Action
@@ -15,7 +16,14 @@ class SnakeEnv(gym.Env):
     """
     action_space = [0, 1, 2]
 
-    def __init__(self, shape: [typing.List[int], typing.Tuple[int, int]] = (4, 4)):
+    def __init__(self, screen=None, shape: [typing.List[int], typing.Tuple[int, int]] = (4, 4)):
+        kwargs = locals()
+
+        self.logger: logging.Logger = logging.getLogger(self.__class__.__name__)
+        self.logger.setLevel(logging.INFO)
+        self.logger.debug(f'init with kwargs = {kwargs}')
+
+        self.screen = screen
         self.shape = shape
         self.curses_snake: CursesSnake = ...
 
@@ -30,9 +38,10 @@ class SnakeEnv(gym.Env):
             right: [none, up, down]
         }
         self.reset()
+        self.logger.debug('init finished')
 
     def reset(self) -> typing.List[typing.List[int]]:
-        self.curses_snake = CursesSnake(self.shape)
+        self.curses_snake = CursesSnake(self.screen, self.shape)
         return self.curses_snake.snake.game_board.data
 
     def render(self, mode='human') -> None:
