@@ -15,7 +15,7 @@ class DeepQLearningNetwork(AbstractDeepQLearningNetwork):
 
     def observation_list_preprocessor(self, observation_list: numpy.ndarray) -> numpy.ndarray:
         shape: list = list(observation_list.shape) + [1]
-        return observation_list.reshape(shape) / 5
+        return observation_list.reshape(shape) / 4
 
     @classmethod
     def init_model(cls, input_shape: typing.Tuple[int, int], output_dim: int,

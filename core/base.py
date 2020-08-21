@@ -13,11 +13,11 @@ class Action(object):
 
 class Point(object):
     class Type(object):
-        NONE: int = 1
-        BODY: int = 2
-        HEAD: int = 3
-        TAIL: int = 4
-        APPLE: int = 5
+        NONE: int = 0
+        BODY: int = 1
+        HEAD: int = 2
+        TAIL: int = 3
+        APPLE: int = 4
         DIRECT: int = 10086
 
     def __init__(self, x, y, _type: int = Type.BODY):
