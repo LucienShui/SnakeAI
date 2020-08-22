@@ -25,7 +25,7 @@ def agent_play(shape: tuple, render: bool = False):
 
     dqn = DeepQNetwork(shape,
                        len(env.action_space),
-                       initial_epsilon=.9,
+                       initial_epsilon=0,
                        batch_size=32,
                        queue_size=1 << 8)
 
@@ -42,7 +42,7 @@ def agent_play(shape: tuple, render: bool = False):
         if done:
             break
 
-        time.sleep(50 / 1000)
+        time.sleep(1000 / 1000)
 
     env.close()
 
@@ -72,17 +72,17 @@ def train(shape: tuple, render: bool = False):
 
             def custom_reward() -> (float, done):
 
-                # 如果原地转圈则提前结束并惩罚
+                # 如果原地转圈则惩罚
                 action_queue.put(action)
                 while action_queue.qsize() > 4:
                     action_queue.get()
 
                 if action_queue.qsize() == 4 and set(action_queue.queue).__len__() == 1 and action_queue.queue[0] != 0:
-                    return -10, True
+                    return -1, False
 
                 # 如果无用步数过多则提前结束并惩罚
                 if action_cnt > shape[0] * shape[1] * 2:
-                    return -10, True
+                    return -1, False
 
                 return reward, done
 
@@ -106,7 +106,7 @@ def train(shape: tuple, render: bool = False):
 
 def main():
     config = {
-        'shape': '(9, 9)',
+        'shape': '(4, 4)',
         'human': 'false',
         'render': 'false',
         'training': 'false'

@@ -97,7 +97,10 @@ class Game(object):
         """
         :return: 游戏是否结束
         """
-        return self.is_out_range(self.snake[0]) or self.snake[0] in self.snake[1:]
+        for point in self.snake:
+            if self.is_out_range(point):
+                return True
+        return self.snake[0] in self.snake[1:]
 
     def get_apple(self) -> Apple:
         """
