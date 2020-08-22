@@ -5,12 +5,12 @@ import sys
 import queue
 import time
 
-from agent import DeepQLearningNetwork
+from agent import DeepQNetwork
 from graphic import CursesSnake
 from gym.envs import SnakeEnv
 
 
-def custom_reward(info: dict) -> float:
+def distance_reward(info: dict) -> float:
     snake_x = info['bodies'][0]['x']
     snake_y = info['bodies'][0]['y']
 
@@ -23,11 +23,11 @@ def custom_reward(info: dict) -> float:
 def agent_play(shape: tuple, render: bool = False):
     env = SnakeEnv(shape)
 
-    dqn = DeepQLearningNetwork(shape,
-                               len(env.action_space),
-                               initial_epsilon=.9,
-                               batch_size=32,
-                               queue_size=1 << 8)
+    dqn = DeepQNetwork(shape,
+                       len(env.action_space),
+                       initial_epsilon=.9,
+                       batch_size=32,
+                       queue_size=1 << 8)
 
     dqn.load_model('model.h5')
 
@@ -50,11 +50,11 @@ def agent_play(shape: tuple, render: bool = False):
 def train(shape: tuple, render: bool = False):
     env = SnakeEnv(shape)
 
-    dqn = DeepQLearningNetwork(shape,
-                               len(env.action_space),
-                               initial_epsilon=.9,
-                               batch_size=32,
-                               queue_size=1 << 8)
+    dqn = DeepQNetwork(shape,
+                       len(env.action_space),
+                       initial_epsilon=.0,
+                       batch_size=32,
+                       queue_size=1 << 8)
 
     best_score: int = 0
 
@@ -70,18 +70,25 @@ def train(shape: tuple, render: bool = False):
             next_observation, reward, done, info = env.step(action)
             action_cnt = 0 if reward > 0 else action_cnt + 1
 
-            # 如果无用步数过多则提前结束
-            if action_cnt > shape[0] * shape[1] * 2:
-                done = True
+            def custom_reward() -> (float, done):
 
-            # 如果原地转圈则提前结束
-            action_queue.put(action)
-            while action_queue.qsize() > 4:
-                action_queue.get()
+                # 如果原地转圈则提前结束并惩罚
+                action_queue.put(action)
+                while action_queue.qsize() > 4:
+                    action_queue.get()
 
-            if action_queue.qsize() == 4 and set(action_queue.queue).__len__() == 1 and action_queue.queue[0] != 0:
-                done = True
+                if action_queue.qsize() == 4 and set(action_queue.queue).__len__() == 1 and action_queue.queue[0] != 0:
+                    return -10, True
 
+                # 如果无用步数过多则提前结束并惩罚
+                if action_cnt > shape[0] * shape[1] * 2:
+                    return -10, True
+
+                return reward, done
+
+            reward, done = custom_reward()
+
+            # 记录并学习
             dqn.fit(observation, reward, done, action, next_observation)
 
             observation = next_observation

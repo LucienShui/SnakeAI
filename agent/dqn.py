@@ -5,10 +5,10 @@ import typing
 import numpy
 from tensorflow import keras
 
-from .abstract_dqn import AbstractDeepQLearningNetwork
+from .abstract_dqn import AbstractDeepQNetwork
 
 
-class DeepQLearningNetwork(AbstractDeepQLearningNetwork):
+class DeepQNetwork(AbstractDeepQNetwork):
 
     def __init__(self, observation_shape: tuple, action_dim: int, *args, **kwargs):
         super().__init__(observation_shape, action_dim, *args, **kwargs)

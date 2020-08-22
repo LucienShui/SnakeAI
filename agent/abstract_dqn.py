@@ -8,7 +8,7 @@ import numpy
 from tensorflow import keras
 
 
-class AbstractDeepQLearningNetwork(object):
+class AbstractDeepQNetwork(object):
 
     def __init__(self,
                  observation_shape: tuple,
