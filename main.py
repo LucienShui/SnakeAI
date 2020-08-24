@@ -32,11 +32,15 @@ def agent_play(shape: tuple, render: bool = False):
     dqn.load_model('model.h5')
 
     observation = env.reset()
+    if render:
+        env.render()
+
     while True:
-        if render:
-            env.render()
         action = dqn.action(observation)
         next_observation, reward, done, info = env.step(action)
+
+        if render:
+            env.render()
 
         observation = next_observation
         if done:
