@@ -14,9 +14,9 @@ class AbstractDeepQNetwork(object):
                  observation_shape: tuple,
                  action_dim: int,
                  gamma: float = .9,
-                 queue_size: int = 1 << 10,
+                 queue_size: int = 1 << 17,
                  batch_size: int = 32,
-                 initial_epsilon: float = .5,
+                 initial_epsilon: float = 1,
                  epsilon_decay: float = 1e-4,
                  learning_rate: float = 1e-4):
 

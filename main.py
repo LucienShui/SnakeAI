@@ -23,11 +23,7 @@ def distance_reward(info: dict) -> float:
 def agent_play(shape: tuple, render: bool = False):
     env = SnakeEnv(shape)
 
-    dqn = DeepQNetwork(shape,
-                       len(env.action_space),
-                       initial_epsilon=0,
-                       batch_size=32,
-                       queue_size=1 << 8)
+    dqn = DeepQNetwork(shape, len(env.action_space))
 
     dqn.load_model('model.h5')
 
@@ -54,11 +50,7 @@ def agent_play(shape: tuple, render: bool = False):
 def train(shape: tuple, render: bool = False):
     env = SnakeEnv(shape)
 
-    dqn = DeepQNetwork(shape,
-                       len(env.action_space),
-                       initial_epsilon=.0,
-                       batch_size=32,
-                       queue_size=1 << 8)
+    dqn = DeepQNetwork(shape, len(env.action_space))
 
     best_score: int = 0
 
