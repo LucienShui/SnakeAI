@@ -1,10 +1,8 @@
 from __future__ import absolute_import, print_function
 
-from enum import Enum
 
-
-class Reward(Enum):
-    DEATH = -100
-    ACTION = -1
-    APPLE = 10
-    WIN = 100
+class Reward(object):
+    DEATH: int = -100
+    ACTION: int = -1
+    APPLE: int = 10
+    WIN: int = 100
