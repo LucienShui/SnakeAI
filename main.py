@@ -95,10 +95,11 @@ def train(shape: tuple, render: bool = False, episode: int = 2048):
 
     best_score: int = 0
 
-    i_episode = 1
+    i_episode = 0
 
     while True:
         best_score = max(best_score, train_step(shape, env, dqn, render=render))
+        i_episode += 1
 
         if i_episode % 100 == 0:
             dqn.save('model.h5')
