@@ -103,7 +103,7 @@ def train(shape: tuple, render: bool = False, episode: int = 2048):
 
         if i_episode % 100 == 0:
             dqn.save('model.h5')
-            print(f"Episode {i_episode} finished, best score is {best_score}")
+            print(f"Episode {i_episode} finished, epsilon = {dqn.epsilon}, best score is {best_score}")
 
         if episode is not None and i_episode > episode:
             break
