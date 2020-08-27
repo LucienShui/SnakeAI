@@ -1,9 +1,10 @@
 from __future__ import absolute_import, print_function
 
 import copy
+from enum import Enum
 
 
-class Action(object):
+class Action(Enum):
     UP: int = 1 << 3  # 1000
     DOWN: int = 1 << 2  # 0100
     LEFT: int = 1 << 1  # 0010
@@ -12,7 +13,7 @@ class Action(object):
 
 
 class Point(object):
-    class Type(object):
+    class Type(Enum):
         NONE: int = 0
         BODY: int = 1
         HEAD: int = 2

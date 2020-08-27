@@ -1,8 +1,9 @@
+import copy
 import random
 import typing
 
-import copy
 from .base import Action, Point
+from .reward import Reward
 from .snake import Apple, Snake
 
 
@@ -120,19 +121,19 @@ class Game(object):
     @property
     def info(self) -> dict:
         return {
-                'length': self.length,
-                'direction': self.snake.direction,
-                'bodies': [
-                    {
-                        'x': point.x,
-                        'y': point.y
-                    } for point in self.snake
-                ],
-                'apple': {
-                    'x': self.apple.position.x,
-                    'y': self.apple.position.y,
-                }
+            'length': self.length,
+            'direction': self.snake.direction,
+            'bodies': [
+                {
+                    'x': point.x,
+                    'y': point.y
+                } for point in self.snake
+            ],
+            'apple': {
+                'x': self.apple.position.x,
+                'y': self.apple.position.y,
             }
+        }
 
     def step(self, action: int) -> (typing.List[typing.List[int]], float, bool, typing.Any):
         """
@@ -151,7 +152,7 @@ class Game(object):
         eat_apple: bool = self.snake.move(self.apple)
 
         if self.is_crash():
-            return self.game_board.data, -1, True, self.info
+            return self.game_board.data, Reward.DEATH, True, self.info
 
         self.game_board.draw_points(self.snake.points)
 
@@ -159,10 +160,10 @@ class Game(object):
             self.score += 1
 
             if self.length == self.shape[1] * self.shape[0]:
-                return self.game_board.data, 1, True, self.info
+                return self.game_board.data, Reward.WIN, True, self.info
 
             self.apple = self.get_apple()
 
         self.game_board.draw_point(self.apple.position)
 
-        return self.game_board.data, 1 if eat_apple else -1, False, self.info
+        return self.game_board.data, Reward.APPLE if eat_apple else Reward.ACTION, False, self.info

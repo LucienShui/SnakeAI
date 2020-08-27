@@ -69,11 +69,11 @@ def train_step(shape: tuple, env: SnakeEnv, dqn: DeepQNetwork, render: bool = Fa
                 action_queue.get()
 
             if action_queue.qsize() == 4 and set(action_queue.queue).__len__() == 1 and action_queue.queue[0] != 0:
-                return -1, False
+                return -1, done
 
             # 如果无用步数过多则提前结束并惩罚
             if action_cnt > shape[0] * shape[1] * 2:
-                return -1, False
+                return -1, True
 
             return reward, done
 
