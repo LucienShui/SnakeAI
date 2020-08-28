@@ -2,7 +2,12 @@ from __future__ import absolute_import, print_function
 
 
 class Reward(object):
-    DEATH: int = -100
-    ACTION: int = -1
-    APPLE: int = 10
-    WIN: int = 100
+    # Negative
+    DEATH: int = -.1
+    NORMAL_ACTION: int = -.01
+    SAME_ACTION: int = -.1
+    TOO_MANY_ACTION: int = -.1
+
+    # Positive
+    APPLE: int = 1
+    WIN: int = 1
