@@ -14,7 +14,7 @@ class AbstractDeepQNetwork(object):
                  observation_shape: tuple,
                  action_dim: int,
                  gamma: float = .9,
-                 queue_size: int = 1 << 17,
+                 queue_size: int = 1 << 10,
                  batch_size: int = 32,
                  initial_epsilon: float = 1,
                  epsilon_decay: float = 1e-4,
@@ -66,11 +66,11 @@ class AbstractDeepQNetwork(object):
             next_observation: list) -> None:
         self.queue.put((observation, reward, done, action, next_observation))
 
-        if self.queue.qsize() > self.queue_size:
-            self.queue.get()
-
-        if self.queue.qsize() > self.batch_size:
-            self.__fit(random.sample(self.queue.queue, self.batch_size))
+        if self.queue.qsize() == self.queue_size:
+            train_data: list = list(self.queue.queue)
+            random.shuffle(train_data)
+            self.queue = Queue()  # 清空队列
+            self.__fit(train_data)
 
     def __fit(self, sample: typing.List[typing.Tuple[list, float, bool, int, list]]):
         self.time_step += 1
@@ -88,7 +88,8 @@ class AbstractDeepQNetwork(object):
                 idx = numpy.argmax(q_value[i])
                 q_value[i][idx] = reward + self.gamma * q_value[i][idx]
 
-        self.model.fit(self.observation_list_preprocessor(observation_list), q_value, batch_size=self.batch_size, epochs=1, verbose=0)
+        self.model.fit(self.observation_list_preprocessor(observation_list),
+                       q_value, batch_size=self.batch_size, epochs=8, verbose=0)
 
     def save(self, *args, **kwargs):
         self.model.save(*args, **kwargs)

@@ -125,7 +125,7 @@ class Agent(object):
                               f'epsilon = {self.dqn.epsilon}, '
                               f'average_reward = {buf_reward_sum / buf_action_cnt}')
 
-            if i_episode % 50 == 0:
+            if i_episode % 100 == 0:
                 self.dqn.save(self.model_path)
                 self.logger.info(f'i_episode = {i_episode}, '
                                  f'epsilon = {self.dqn.epsilon}, '
