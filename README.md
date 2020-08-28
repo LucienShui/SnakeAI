@@ -4,19 +4,32 @@
 
 ## 参数
 
+```bash
+usage: main.py [-h] [--human] [--training] [--render] [--shape SHAPE SHAPE] [--episode EPISODE]
+
+optional arguments:
+  -h, --help           show this help message and exit
+  --human              human play
+  --training           training agent
+  --render             render game
+  --shape SHAPE SHAPE  game size, default is 4 4
+  --episode EPISODE    training episode, default is inf
+```
+
 | parameter | description |
 | --- | --- |
-| shape | window size of game, `(4,4)` for default |
-| human | play game manually or not, `false` for default |
-| render | show the game board or not, `false` for default, ignored when field `human` is `true` |
-| training | training the agent or not, `false` for default |
+| shape | window size of game, `4 4` for default |
+| human | play game manually or not |
+| render | show the game board or not, ignored when field `human` is set |
+| training | training the agent or not |
+| episode | training episode, default is inf |
 
 ## 人工智能
 
 ***人工*** 智能
 
 ```sh
-python main.py --human --shape=(4,4)
+python main.py --human --shape 4 4
 ```
 
 ## 人工智障
@@ -30,7 +43,7 @@ python main.py
 ### 训练
 
 ```sh
-python main.py --training=true
+python main.py --training
 ```
 
 ## 目前存在的问题

@@ -167,4 +167,4 @@ class Game(object):
 
         self.game_board.draw_point(self.apple.position)
 
-        return self.game_board.data, Reward.APPLE if eat_apple else Reward.ACTION, False, self.info
+        return self.game_board.data, Reward.APPLE if eat_apple else Reward.NORMAL_ACTION, False, self.info

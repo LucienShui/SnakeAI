@@ -5,10 +5,12 @@ import logging
 import queue
 import time
 
+from core import Reward
 from agent import DenseDeepQNetwork as DeepQNetwork
 from graphic import CursesSnake
 from gym.envs import SnakeEnv
 
+MODEL_PATH: str = 'model.h5'
 logging.basicConfig(level=logging.INFO)
 
 
@@ -27,7 +29,7 @@ def agent_play(shape: tuple, render: bool = False):
 
     dqn = DeepQNetwork(shape, len(env.action_space))
 
-    dqn.load_model('model.h5')
+    dqn.load_model(MODEL_PATH)
 
     observation = env.reset()
     if render:
@@ -69,11 +71,11 @@ def train_step(shape: tuple, env: SnakeEnv, dqn: DeepQNetwork, render: bool = Fa
                 action_queue.get()
 
             if action_queue.qsize() == 4 and set(action_queue.queue).__len__() == 1 and action_queue.queue[0] != 0:
-                return -1, done
+                return Reward.SAME_ACTION, done
 
             # 如果无用步数过多则提前结束并惩罚
             if action_cnt > shape[0] * shape[1] * 2:
-                return -1, True
+                return Reward.TOO_MANY_ACTION, True
 
             return reward, done
 
@@ -101,8 +103,8 @@ def train(shape: tuple, render: bool = False, episode: int = 2048):
         best_score = max(best_score, train_step(shape, env, dqn, render=render))
         i_episode += 1
 
-        if i_episode % 100 == 0:
-            dqn.save('model.h5')
+        if i_episode % 50 == 0:
+            dqn.save(MODEL_PATH)
             print(f"Episode {i_episode} finished, epsilon = {dqn.epsilon}, best score is {best_score}")
 
         if episode is not None and i_episode > episode:
@@ -110,7 +112,7 @@ def train(shape: tuple, render: bool = False, episode: int = 2048):
 
     env.close()
 
-    dqn.save('model.h5')
+    dqn.save(MODEL_PATH)
 
 
 def get_args() -> argparse.Namespace:
@@ -118,8 +120,8 @@ def get_args() -> argparse.Namespace:
     parser.add_argument('--human', help='human play', action='store_true')
     parser.add_argument('--training', help='training agent', action='store_true')
     parser.add_argument('--render', help='render game', action='store_true')
-    parser.add_argument('--shape', help='game size', nargs=2, type=int)
-    parser.add_argument('--episode', help='training episode', type=int)
+    parser.add_argument('--shape', help='game size, default is 4 4', nargs=2, type=int)
+    parser.add_argument('--episode', help='training episode, default is inf', type=int)
 
     args = parser.parse_args()
 
