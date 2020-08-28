@@ -2,9 +2,6 @@ from __future__ import absolute_import, print_function
 
 import argparse
 
-from agent import Agent
-from graphic import CursesSnake
-
 
 def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -37,8 +34,13 @@ def main():
     args = get_args()
 
     if args.human:
+        from graphic import CursesSnake
+
         CursesSnake(args.shape).run()
+
     else:
+        from agent import Agent
+
         agent: Agent = Agent(args.shape, render=args.render, episode=args.episode, logger_level=args.log_level)
         if args.training:
             agent.train()
