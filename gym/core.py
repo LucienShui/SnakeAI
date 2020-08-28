@@ -38,10 +38,10 @@ class Env(object):
         Accepts an action and returns a tuple (observation, reward, done, info).
 
         Args:
-            action (object): an action provided by the agent
+            action (object): an action provided by the dqn
 
         Returns:
-            observation (object): agent's observation of the current environment
+            observation (object): dqn's observation of the current environment
             reward (float) : amount of reward returned after previous action
             done (bool): whether the episode has ended, in which case further step() calls will return undefined results
             info (dict): contains auxiliary diagnostic information (helpful for debugging, and sometimes learning)

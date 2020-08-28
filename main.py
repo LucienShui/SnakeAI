@@ -1,17 +1,26 @@
 from __future__ import absolute_import, print_function
 
 import argparse
-import logging
-import queue
-import time
 
-from core import Reward
-from agent import DenseDeepQNetwork as DeepQNetwork
+from agent import Agent
 from graphic import CursesSnake
-from gym.envs import SnakeEnv
 
-MODEL_PATH: str = 'model.h5'
-logging.basicConfig(level=logging.INFO)
+
+def get_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--human', help='human play', action='store_true')
+    parser.add_argument('--training', help='training dqn', action='store_true')
+    parser.add_argument('--render', help='render game', action='store_true')
+    parser.add_argument('--shape', help='game size, default is 4 4', nargs=2, type=int)
+    parser.add_argument('--episode', help='training episode, default is inf', type=int)
+    parser.add_argument('--log-level', help='DEBUG, INFO, WARNING, ERROR, CRITICAL, default is INFO', type=str)
+
+    args = parser.parse_args()
+
+    args.shape = (4, 4) if args.shape is None else tuple(args.shape)
+    args.log_level = 'INFO' if args.log_level is None else args.log_level
+
+    return args
 
 
 def distance_reward(info: dict) -> float:
@@ -24,121 +33,17 @@ def distance_reward(info: dict) -> float:
     return (1 / (abs(snake_x - apple_x) + abs(snake_y - apple_y))) * .5
 
 
-def agent_play(shape: tuple, render: bool = False):
-    env = SnakeEnv(shape)
-
-    dqn = DeepQNetwork(shape, len(env.action_space))
-
-    dqn.load_model(MODEL_PATH)
-
-    observation = env.reset()
-    if render:
-        env.render()
-
-    while True:
-        time.sleep(1000 / 1000)
-
-        action = dqn.action(observation)
-        next_observation, reward, done, info = env.step(action)
-
-        if render:
-            env.render()
-
-        observation = next_observation
-        if done:
-            break
-
-    env.close()
-
-
-def train_step(shape: tuple, env: SnakeEnv, dqn: DeepQNetwork, render: bool = False) -> int:
-    observation = env.reset()
-    action_cnt: int = 0
-    action_queue: queue.Queue = queue.Queue()
-    for t in range(1 << 11):
-        if render:
-            env.render()
-        action = dqn.greedy_action(observation)
-
-        next_observation, reward, done, info = env.step(action)
-        action_cnt = 0 if reward > 0 else action_cnt + 1
-
-        def custom_reward() -> (float, done):
-
-            # 如果原地转圈则惩罚
-            action_queue.put(action)
-            while action_queue.qsize() > 4:
-                action_queue.get()
-
-            if action_queue.qsize() == 4 and set(action_queue.queue).__len__() == 1 and action_queue.queue[0] != 0:
-                return Reward.SAME_ACTION, done
-
-            # 如果无用步数过多则提前结束并惩罚
-            if action_cnt > shape[0] * shape[1] * 2:
-                return Reward.TOO_MANY_ACTION, True
-
-            return reward, done
-
-        reward, done = custom_reward()
-
-        # 记录并学习
-        dqn.fit(observation, reward, done, action, next_observation)
-
-        observation = next_observation
-        if done:
-            break
-    return env.curses_snake.snake.length
-
-
-def train(shape: tuple, render: bool = False, episode: int = 2048):
-    env = SnakeEnv(shape)
-
-    dqn = DeepQNetwork(shape, len(env.action_space), initial_epsilon=2)
-
-    best_score: int = 0
-
-    i_episode = 0
-
-    while True:
-        best_score = max(best_score, train_step(shape, env, dqn, render=render))
-        i_episode += 1
-
-        if i_episode % 50 == 0:
-            dqn.save(MODEL_PATH)
-            print(f"Episode {i_episode} finished, epsilon = {dqn.epsilon}, best score is {best_score}")
-
-        if episode is not None and i_episode > episode:
-            break
-
-    env.close()
-
-    dqn.save(MODEL_PATH)
-
-
-def get_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--human', help='human play', action='store_true')
-    parser.add_argument('--training', help='training agent', action='store_true')
-    parser.add_argument('--render', help='render game', action='store_true')
-    parser.add_argument('--shape', help='game size, default is 4 4', nargs=2, type=int)
-    parser.add_argument('--episode', help='training episode, default is inf', type=int)
-
-    args = parser.parse_args()
-
-    args.shape = (4, 4) if args.shape is None else tuple(args.shape)
-
-    return args
-
-
 def main():
     args = get_args()
 
     if args.human:
         CursesSnake(args.shape).run()
-    elif args.training:
-        train(args.shape, render=args.render, episode=args.episode)
     else:
-        agent_play(args.shape, render=args.render)
+        agent: Agent = Agent(args.shape, render=args.render, episode=args.episode, logger_level=args.log_level)
+        if args.training:
+            agent.train()
+        else:
+            agent.play()
 
 
 if __name__ == '__main__':

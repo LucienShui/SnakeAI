@@ -18,6 +18,7 @@ class AbstractDeepQNetwork(object):
                  batch_size: int = 32,
                  initial_epsilon: float = 1,
                  epsilon_decay: float = 1e-4,
+                 lower_epsilon: float = 0,
                  learning_rate: float = 1e-4):
 
         self.observation_shape: tuple = observation_shape
@@ -27,6 +28,7 @@ class AbstractDeepQNetwork(object):
         self.batch_size: int = batch_size
         self.initial_epsilon: float = initial_epsilon
         self.epsilon_decay: float = epsilon_decay
+        self.lower_epsilon: float = lower_epsilon
         self.learning_rate: float = learning_rate
 
         self.time_step: int = 0
@@ -39,8 +41,8 @@ class AbstractDeepQNetwork(object):
         raise NotImplementedError
 
     @property
-    def epsilon(self):
-        return max(.1, self.initial_epsilon - self.time_step * self.epsilon_decay)
+    def epsilon(self) -> float:
+        return max(0., self.initial_epsilon - self.time_step * self.epsilon_decay)
 
     def greedy_action(self, observation: list) -> int:
 
