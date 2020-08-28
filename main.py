@@ -5,7 +5,7 @@ import logging
 import queue
 import time
 
-from agent import DeepQNetwork
+from agent import DenseDeepQNetwork as DeepQNetwork
 from graphic import CursesSnake
 from gym.envs import SnakeEnv
 
@@ -34,6 +34,8 @@ def agent_play(shape: tuple, render: bool = False):
         env.render()
 
     while True:
+        time.sleep(1000 / 1000)
+
         action = dqn.action(observation)
         next_observation, reward, done, info = env.step(action)
 
@@ -43,8 +45,6 @@ def agent_play(shape: tuple, render: bool = False):
         observation = next_observation
         if done:
             break
-
-        time.sleep(1000 / 1000)
 
     env.close()
 

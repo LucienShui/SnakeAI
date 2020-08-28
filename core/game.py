@@ -2,7 +2,8 @@ import copy
 import random
 import typing
 
-from .base import Action, Point
+from .action import Action
+from .point import Point
 from .reward import Reward
 from .snake import Apple, Snake
 

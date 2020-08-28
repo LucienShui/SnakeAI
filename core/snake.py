@@ -1,6 +1,7 @@
 import typing
 
-from .base import Point, Action
+from .point import Point
+from .action import Action
 
 
 class Apple(object):

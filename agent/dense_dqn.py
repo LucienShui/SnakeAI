@@ -5,28 +5,24 @@ import typing
 import numpy
 from tensorflow import keras
 
+from core import Point
 from .abstract_dqn import AbstractDeepQNetwork
 
 
-class DeepQNetwork(AbstractDeepQNetwork):
+class DenseDeepQNetwork(AbstractDeepQNetwork):
 
     def __init__(self, observation_shape: tuple, action_dim: int, *args, **kwargs):
         super().__init__(observation_shape, action_dim, *args, **kwargs)
 
     def observation_list_preprocessor(self, observation_list: numpy.ndarray) -> numpy.ndarray:
         shape: list = list(observation_list.shape) + [1]
-        return observation_list.reshape(shape) / 4
+        return observation_list.reshape(shape) / Point.Type.MAX
 
     @classmethod
     def init_model(cls, input_shape: typing.Tuple[int, int], output_dim: int,
                    learning_rate: float = 1e-4) -> keras.Model:
         model: keras.Model = keras.models.Sequential([
-            keras.layers.Conv2D(8, (3, 3), activation=keras.activations.relu,
-                                input_shape=(input_shape[0], input_shape[1], 1)),
-            keras.layers.MaxPooling2D(2, 2),
-
-            keras.layers.Dropout(.5),
-            keras.layers.Flatten(),
+            keras.layers.Flatten(input_shape=(input_shape[0], input_shape[1], 1)),
 
             keras.layers.Dense(64, activation=keras.activations.relu),
             keras.layers.Dense(32, activation=keras.activations.relu),
