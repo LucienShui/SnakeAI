@@ -2,7 +2,7 @@ from __future__ import absolute_import, print_function
 
 import random
 import typing
-from queue import Queue
+from dqn.replay_buffer import ReplayBuffer
 
 import numpy
 from tensorflow import keras
@@ -14,12 +14,12 @@ class AbstractDeepQNetwork(object):
                  observation_shape: tuple,
                  action_dim: int,
                  gamma: float = .9,
-                 queue_size: int = 1 << 10,
+                 queue_size: int = 1 << 16,
                  batch_size: int = 32,
-                 initial_epsilon: float = 1,
-                 epsilon_decay: float = 1e-4,
-                 lower_epsilon: float = 0,
-                 learning_rate: float = 1e-4):
+                 initial_epsilon: float = 0.1,
+                 epsilon_decay: float = 1e-6,
+                 final_epsilon: float = 0.02,
+                 learning_rate: float = 5e-4):
 
         self.observation_shape: tuple = observation_shape
         self.action_dim: int = action_dim
@@ -28,21 +28,20 @@ class AbstractDeepQNetwork(object):
         self.batch_size: int = batch_size
         self.initial_epsilon: float = initial_epsilon
         self.epsilon_decay: float = epsilon_decay
-        self.lower_epsilon: float = lower_epsilon
+        self.final_epsilon: float = final_epsilon
         self.learning_rate: float = learning_rate
 
         self.time_step: int = 0
-        self.queue: Queue = Queue()
+        self.replay_buffer: ReplayBuffer = ReplayBuffer(self.queue_size)
         self.model = self.init_model(self.observation_shape, self.action_dim, self.learning_rate)
 
     @classmethod
-    def init_model(cls, input_shape: tuple, output_dim: int,
-                   learning_rate: float = 1e-4) -> keras.Model:
+    def init_model(cls, input_shape: tuple, output_dim: int, learning_rate: float) -> keras.Model:
         raise NotImplementedError
 
     @property
     def epsilon(self) -> float:
-        return max(0., self.initial_epsilon - self.time_step * self.epsilon_decay)
+        return max(self.final_epsilon, self.initial_epsilon - self.time_step * self.epsilon_decay)
 
     def greedy_action(self, observation: list) -> int:
 
@@ -64,22 +63,15 @@ class AbstractDeepQNetwork(object):
             done: bool,
             action: int,
             next_observation: list) -> None:
-        self.queue.put((observation, reward, done, action, next_observation))
+        self.replay_buffer.add(observation, reward, done, action, next_observation)
 
-        if self.queue.qsize() == self.queue_size:
-            train_data: list = list(self.queue.queue)
-            random.shuffle(train_data)
-            self.queue = Queue()  # 清空队列
-            self.__fit(train_data)
+        if len(self.replay_buffer) >= self.batch_size:
+            self.__fit(*self.replay_buffer.sample(self.batch_size))
 
-    def __fit(self, sample: typing.List[typing.Tuple[list, float, bool, int, list]]):
+    def __fit(self, observation_list, reward_list, done_list, action_list, next_observation_list):
         self.time_step += 1
 
-        observation_list, reward_list, done_list, action_list, new_observation_list = [
-            numpy.array([each[i] for each in sample]) for i in range(5)
-        ]
-
-        q_value: numpy.ndarray = self.model.predict(self.observation_list_preprocessor(new_observation_list))
+        q_value: numpy.ndarray = self.model.predict(self.observation_list_preprocessor(next_observation_list))
 
         for i, reward in enumerate(reward_list):
             if done_list[i]:
@@ -88,8 +80,7 @@ class AbstractDeepQNetwork(object):
                 idx = numpy.argmax(q_value[i])
                 q_value[i][idx] = reward + self.gamma * q_value[i][idx]
 
-        self.model.fit(self.observation_list_preprocessor(observation_list),
-                       q_value, batch_size=self.batch_size, epochs=8, verbose=0)
+        self.model.fit(self.observation_list_preprocessor(observation_list), q_value, verbose=0)
 
     def save(self, *args, **kwargs):
         self.model.save(*args, **kwargs)
