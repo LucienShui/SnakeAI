@@ -16,6 +16,7 @@ def get_args() -> argparse.Namespace:
 
     args.shape = (4, 4) if args.shape is None else tuple(args.shape)
     args.log_level = 'INFO' if args.log_level is None else args.log_level
+    args.log_level = args.log_level.upper()
 
     return args
 
