@@ -65,7 +65,7 @@ class Env(object):
 
         - human: render to the current display or terminal and
           return nothing. Usually for human consumption.
-        - rgb_array: Return an numpy.ndarray with shape (x, y, 3),
+        - rgb_array: Return an numpy.array with shape (x, y, 3),
           representing RGB values for an x-by-y pixel image, suitable
           for turning into a video.
         - ansi: Return a string (str) or StringIO.StringIO containing a

@@ -6,21 +6,21 @@ import numpy
 from tensorflow import keras
 
 from core import Point
-from .abstract_dqn import AbstractDeepQNetwork
+from .naive_dqn import NaiveDeepQNetwork
 
 
-class CNNDeepQNetwork(AbstractDeepQNetwork):
+class CNNDeepQNetwork(NaiveDeepQNetwork):
 
     def __init__(self, observation_shape: tuple, action_dim: int, *args, **kwargs):
         super().__init__(observation_shape, action_dim, *args, **kwargs)
 
-    def observation_list_preprocessor(self, observation_list: numpy.ndarray) -> numpy.ndarray:
+    def _observation_list_preprocessor(self, observation_list: numpy.array) -> numpy.array:
         shape: list = list(observation_list.shape) + [1]
         return observation_list.reshape(shape) / Point.Type.MAX
 
     @classmethod
-    def init_model(cls, input_shape: typing.Tuple[int, int], output_dim: int,
-                   learning_rate: float = 1e-4) -> keras.Model:
+    def _init_model(cls, input_shape: typing.Tuple[int, int], output_dim: int,
+                    learning_rate: float = 1e-4) -> keras.Model:
         model: keras.Model = keras.models.Sequential([
             keras.layers.Conv2D(8, (3, 3), activation=keras.activations.relu,
                                 input_shape=(input_shape[0], input_shape[1], 1)),

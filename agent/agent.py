@@ -5,7 +5,7 @@ import queue
 import time
 
 from core import Reward
-from dqn import DenseDeepQNetwork as DeepQNetwork
+from dqn import DeepQNetworkWithDrop as DeepQNetwork
 from dqn.param import Param
 from gym.envs import SnakeEnv
 
@@ -29,7 +29,7 @@ class Agent(object):
         self.env = SnakeEnv(shape)
 
         self.dqn = DeepQNetwork(shape, len(self.env.action_space), gamma=Param.GAMMA,
-                                queue_size=Param.QUEUE_SIZE, batch_size=Param.BATCH_SIZE,
+                                buffer_size=Param.BUFFER_SIZE, batch_size=Param.BATCH_SIZE,
                                 initial_epsilon=Param.INITIAL_EPSILON, epsilon_decay=Param.EPSILON_DECAY,
                                 final_epsilon=Param.FINAL_EPSILON, learning_rate=Param.LEARNING_RATE)
 
@@ -82,7 +82,7 @@ class Agent(object):
                     action_queue.get()
 
                 if action_queue.qsize() == 4 and set(action_queue.queue).__len__() == 1 and action_queue.queue[0] != 0:
-                    return Reward.SAME_ACTION, done
+                    return Reward.SAME_ACTION, True
 
                 # 如果无用步数过多则提前结束并惩罚
                 if action_cnt_without_apple > self.shape[0] * self.shape[1] * 2:

@@ -1,5 +1,5 @@
 from __future__ import absolute_import, print_function
-import numpy as np
+import numpy
 import random
 import typing
 
@@ -22,7 +22,7 @@ class ReplayBuffer(object):
             self._data[self._next_idx] = data
         self._next_idx = (self._next_idx + 1) % self._capacity
 
-    def _encode_sample(self, idxes) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    def _encode_sample(self, idxes) -> typing.Tuple[numpy.array, numpy.array, numpy.array, numpy.array, numpy.array]:
         """
         :param idxes: index list
         :return: observation_list, reward_list, done_list, action_list, next_observation_list
@@ -30,22 +30,22 @@ class ReplayBuffer(object):
         observation_list, reward_list, done_list, action_list, next_observation_list = [], [], [], [], []
         for i in idxes:
             observation, reward, done, action, next_observation = self._data[i]
-            observation_list.append(np.array(observation, copy=False))
+            observation_list.append(numpy.array(observation, copy=False))
             action_list.append(action)
             reward_list.append(reward)
-            next_observation_list.append(np.array(next_observation, copy=False))
+            next_observation_list.append(numpy.array(next_observation, copy=False))
             done_list.append(done)
         return (
-            np.array(observation_list), np.array(reward_list), np.array(done_list),
-            np.array(action_list), np.array(next_observation_list)
+            numpy.array(observation_list), numpy.array(reward_list), numpy.array(done_list),
+            numpy.array(action_list), numpy.array(next_observation_list)
         )
 
-    def sample(self, batch_size) -> typing.Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    def sample(self, sample_size) -> typing.Tuple[numpy.array, numpy.array, numpy.array, numpy.array, numpy.array]:
         """
-        :param batch_size: batch size
+        :param sample_size: sample size
         :returns numpy.array: observation_list, reward_list, done_list, action_list, next_observation_list
         """
-        idxes = [random.randint(0, len(self._data) - 1) for _ in range(batch_size)]
+        idxes = [random.randint(0, len(self._data) - 1) for _ in range(sample_size)]
         return self._encode_sample(idxes)
 
     def clear(self):
