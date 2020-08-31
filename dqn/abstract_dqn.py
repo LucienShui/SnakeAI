@@ -19,8 +19,7 @@ class AbstractDeepQNetwork(object):
                  initial_epsilon: float = 0.1,
                  epsilon_decay: float = 1e-6,
                  final_epsilon: float = 0.02,
-                 learning_rate: float = 5e-4,
-                 reset_after_training: bool = False):
+                 learning_rate: float = 5e-4):
 
         self.observation_shape: tuple = observation_shape
         self.action_dim: int = action_dim
@@ -31,7 +30,6 @@ class AbstractDeepQNetwork(object):
         self.epsilon_decay: float = epsilon_decay
         self.final_epsilon: float = final_epsilon
         self.learning_rate: float = learning_rate
-        self.reset_after_training: bool = reset_after_training
 
         self.time_step: int = 0
         self.replay_buffer: ReplayBuffer = ReplayBuffer(self.queue_size)
@@ -67,13 +65,8 @@ class AbstractDeepQNetwork(object):
             next_observation: list) -> None:
         self.replay_buffer.add(observation, reward, done, action, next_observation)
 
-        if self.reset_after_training:
-            if len(self.replay_buffer) >= self.batch_size:
-                self.__fit(*self.replay_buffer.sample(self.batch_size))
-        else:
-            if len(self.replay_buffer) >= self.queue_size:
-                self.__fit(*self.replay_buffer.sample(self.queue_size))
-                self.replay_buffer.clear()
+        if len(self.replay_buffer) >= self.batch_size:
+            self.__fit(*self.replay_buffer.sample(self.batch_size))
 
     def __fit(self, observation_list, reward_list, done_list, action_list, next_observation_list):
         self.time_step += 1
@@ -87,11 +80,7 @@ class AbstractDeepQNetwork(object):
                 idx = numpy.argmax(q_value[i])
                 q_value[i][idx] = reward + self.gamma * q_value[i][idx]
 
-        if self.reset_after_training:
-            self.model.fit(self.observation_list_preprocessor(observation_list), q_value,
-                           epochs=16, batch_size=self.batch_size, verbose=0)
-        else:
-            self.model.fit(self.observation_list_preprocessor(observation_list), q_value, verbose=0)
+        self.model.fit(self.observation_list_preprocessor(observation_list), q_value, verbose=0)
 
     def save(self, *args, **kwargs):
         self.model.save(*args, **kwargs)
