@@ -31,7 +31,8 @@ class Agent(object):
         self.dqn = DeepQNetwork(shape, len(self.env.action_space), gamma=Param.GAMMA,
                                 queue_size=Param.QUEUE_SIZE, batch_size=Param.BATCH_SIZE,
                                 initial_epsilon=Param.INITIAL_EPSILON, epsilon_decay=Param.EPSILON_DECAY,
-                                final_epsilon=Param.FINAL_EPSILON, learning_rate=Param.LEARNING_RATE)
+                                final_epsilon=Param.FINAL_EPSILON, learning_rate=Param.LEARNING_RATE,
+                                reset_after_training=Param.RESET_AFTER_TRAINING)
 
     def play(self):
         self.dqn.load_model(self.model_path)

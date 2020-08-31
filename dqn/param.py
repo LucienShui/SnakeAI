@@ -11,3 +11,5 @@ class Param(object):
     FINAL_EPSILON: float = 0.02
 
     LEARNING_RATE: float = 5e-4
+
+    RESET_AFTER_TRAINING: bool = True
