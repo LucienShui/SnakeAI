@@ -19,7 +19,7 @@ class Agent(object):
                  episode: int = None,
                  model_path: str = 'model.h5',
                  logger_level: str = 'INFO',
-                 frame_size: int = 4):
+                 frame_size: int = 1):
         logging.basicConfig()
         self.logger: logging.Logger = logging.getLogger(self.__class__.__name__)
         self.logger.setLevel(logger_level)
