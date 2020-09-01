@@ -55,6 +55,23 @@ class Agent(object):
 
         self.env.close()
 
+    def custom_reward(self, action: int, reward: float, done: bool,
+                      action_queue: queue.Queue, action_cnt_without_apple: int) -> (float, bool):
+
+        # 如果原地转圈则惩罚
+        action_queue.put(action)
+        while action_queue.qsize() > 4:
+            action_queue.get()
+
+        if action_queue.qsize() == 4 and set(action_queue.queue).__len__() == 1 and action_queue.queue[0] != 0:
+            return Reward.SAME_ACTION, True
+
+        # 如果无用步数过多则提前结束并惩罚
+        if action_cnt_without_apple > self.shape[0] * self.shape[1] * 2:
+            return Reward.TOO_MANY_ACTION, True
+
+        return reward, done
+
     def train_step(self) -> (int, float):
         """
         单轮游戏中进行训练
@@ -74,23 +91,7 @@ class Agent(object):
             next_observation, reward, done, info = self.env.step(action)
             action_cnt_without_apple = 0 if reward > 0 else action_cnt_without_apple + 1
 
-            def custom_reward() -> (float, done):
-
-                # 如果原地转圈则惩罚
-                action_queue.put(action)
-                while action_queue.qsize() > 4:
-                    action_queue.get()
-
-                if action_queue.qsize() == 4 and set(action_queue.queue).__len__() == 1 and action_queue.queue[0] != 0:
-                    return Reward.SAME_ACTION, True
-
-                # 如果无用步数过多则提前结束并惩罚
-                if action_cnt_without_apple > self.shape[0] * self.shape[1] * 2:
-                    return Reward.TOO_MANY_ACTION, True
-
-                return reward, done
-
-            reward, done = custom_reward()
+            reward, done = self.custom_reward(action, reward, done, action_queue, action_cnt_without_apple)
 
             action_cnt += 1
             reward_sum += reward
