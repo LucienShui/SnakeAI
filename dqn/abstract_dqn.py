@@ -87,8 +87,7 @@ class AbstractDeepQNetwork:
             if done_list[i]:
                 q_value[i][action_list[i]] = reward
             else:
-                idx = numpy.argmax(q_value[i])
-                q_value[i][idx] = reward + self.gamma * q_value[i][idx]
+                q_value[i][action_list[i]] = reward + self.gamma * numpy.max(q_value[i])
 
         return self._observation_list_preprocessor(observation_list), q_value
 
