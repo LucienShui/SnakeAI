@@ -23,7 +23,7 @@ class NaiveDeepQNetwork(AbstractDeepQNetwork):
 
     def _init_model(self, input_shape: tuple, output_dim: int, learning_rate: float) -> keras.Model:
         model: keras.Model = keras.models.Sequential([
-            keras.layers.Flatten(input_shape=self.observation_shape),
+            keras.layers.Flatten(input_shape=input_shape),
 
             keras.layers.Dense(64, activation=keras.activations.relu),
             keras.layers.Dense(32, activation=keras.activations.relu),

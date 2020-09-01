@@ -3,6 +3,12 @@ from __future__ import absolute_import, print_function
 import argparse
 
 
+def get_or_default(item, default):
+    if item is None:
+        return default
+    return item
+
+
 def get_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument('--human', help='human play', action='store_true')
@@ -10,13 +16,14 @@ def get_args() -> argparse.Namespace:
     parser.add_argument('--render', help='render game', action='store_true')
     parser.add_argument('--shape', help='game size, default is 4 4', nargs=2, type=int)
     parser.add_argument('--episode', help='training episode, default is inf', type=int)
+    parser.add_argument('--frame-size', help='frame size, default is 1', type=int)
     parser.add_argument('--log-level', help='DEBUG, INFO, WARNING, ERROR, CRITICAL, default is INFO', type=str)
 
     args = parser.parse_args()
 
-    args.shape = (4, 4) if args.shape is None else tuple(args.shape)
-    args.log_level = 'INFO' if args.log_level is None else args.log_level
-    args.log_level = args.log_level.upper()
+    args.shape = tuple(get_or_default(args.shape, (4, 4)))
+    args.frame_size = get_or_default(args.frame_size, 1)
+    args.log_level = get_or_default(args.log_level, 'INFO').upper()
 
     return args
 
@@ -42,7 +49,8 @@ def main():
     else:
         from agent import Agent
 
-        agent: Agent = Agent(args.shape, render=args.render, episode=args.episode, logger_level=args.log_level)
+        agent: Agent = Agent(args.shape, render=args.render, episode=args.episode,
+                             logger_level=args.log_level, frame_size=args.frame_size)
         if args.training:
             agent.train()
         else:

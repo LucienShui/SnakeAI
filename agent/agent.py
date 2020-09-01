@@ -4,6 +4,8 @@ import logging
 import queue
 import time
 
+import numpy
+
 from core import Reward
 from dqn import DeepQNetworkWithDrop as DeepQNetwork
 from dqn.param import Param
@@ -16,7 +18,8 @@ class Agent(object):
                  render: bool = False,
                  episode: int = None,
                  model_path: str = 'model.h5',
-                 logger_level: str = 'INFO'):
+                 logger_level: str = 'INFO',
+                 frame_size: int = 4):
         logging.basicConfig()
         self.logger: logging.Logger = logging.getLogger(self.__class__.__name__)
         self.logger.setLevel(logger_level)
@@ -25,31 +28,47 @@ class Agent(object):
         self.shape: tuple = shape
         self.episode: int = episode
         self.render: bool = render
+        self.frame_size: int = frame_size
+
+        self.frame_buffer: queue.Queue = queue.Queue()
+
+        inference_shape: tuple = tuple([self.frame_size] + list(shape))
+
+        for i in range(self.frame_size):
+            self.frame_buffer.put(numpy.zeros(shape=shape).astype(int).tolist())
 
         self.env = SnakeEnv(shape)
 
-        self.dqn = DeepQNetwork(shape, len(self.env.action_space), gamma=Param.GAMMA,
+        self.dqn = DeepQNetwork(inference_shape, len(self.env.action_space), gamma=Param.GAMMA,
                                 buffer_size=Param.BUFFER_SIZE, batch_size=Param.BATCH_SIZE,
                                 initial_epsilon=Param.INITIAL_EPSILON, epsilon_decay=Param.EPSILON_DECAY,
                                 final_epsilon=Param.FINAL_EPSILON, learning_rate=Param.LEARNING_RATE)
 
+    def put_frame_queue(self, observation: list) -> None:
+        self.frame_buffer.put(observation)
+        while self.frame_buffer.qsize() > self.frame_size:
+            self.frame_buffer.get()
+
+    def get_frame(self) -> list:
+        return list(self.frame_buffer.queue)
+
     def play(self):
         self.dqn.load_model(self.model_path)
 
-        observation = self.env.reset()
+        self.put_frame_queue(observation=self.env.reset())
         if self.render:
             self.env.render()
 
         while True:
             time.sleep(1000 / 1000)
 
-            action = self.dqn.action(observation)
-            next_observation, reward, done, info = self.env.step(action)
+            action = self.dqn.action(self.get_frame())
+            observation, reward, done, info = self.env.step(action)
 
             if self.render:
                 self.env.render()
 
-            observation = next_observation
+            self.put_frame_queue(observation)
             if done:
                 break
 
@@ -77,7 +96,7 @@ class Agent(object):
         单轮游戏中进行训练
         :return: 本轮游戏分数，本轮 reward 总和，本轮操作次数
         """
-        observation = self.env.reset()
+        self.put_frame_queue(self.env.reset())
         action_cnt_without_apple: int = 0  # 操作次数累加器，在吃到果子时清零
         action_queue: queue.Queue = queue.Queue()
         reward_sum: int = 0  # 本轮 reward 总和
@@ -86,7 +105,9 @@ class Agent(object):
         for t in range(1 << 11):
             if self.render:
                 self.env.render()
-            action = self.dqn.greedy_action(observation)
+
+            observation_frame = self.get_frame()
+            action = self.dqn.greedy_action(observation_frame)
 
             next_observation, reward, done, info = self.env.step(action)
             action_cnt_without_apple = 0 if reward > 0 else action_cnt_without_apple + 1
@@ -96,10 +117,11 @@ class Agent(object):
             action_cnt += 1
             reward_sum += reward
 
-            # 记录并学习
-            self.dqn.fit(observation, reward, done, action, next_observation)
+            self.put_frame_queue(next_observation)
 
-            observation = next_observation
+            # 记录并学习
+            self.dqn.fit(observation_frame, reward, done, action, self.get_frame())
+
             if done:
                 break
         return self.env.curses_snake.snake.length, reward_sum, action_cnt
