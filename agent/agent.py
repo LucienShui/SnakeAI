@@ -145,16 +145,16 @@ class Agent(object):
 
             self.logger.debug(f'i_episode = {i_episode}, '
                               f'score = {buf_score}, '
-                              f'epsilon = {self.dqn.epsilon: .2f}, '
-                              f'average_reward = {buf_reward_sum / buf_action_cnt: .2f}')
+                              f'epsilon = {self.dqn.epsilon:.2f}, '
+                              f'average_reward = {buf_reward_sum / buf_action_cnt:.2f}')
 
             if i_episode % 100 == 0:
                 self.dqn.save(self.model_path)
                 self.logger.info(f'i_episode = {i_episode}, '
-                                 f'epsilon = {self.dqn.epsilon: .2f}, '
-                                 f'average_reward = {reward_sum / action_cnt: .2f}, '
-                                 f'average_score = {score_sum / i_episode: .2f}, '
-                                 f'best_score = {best_score: .2f}')
+                                 f'epsilon = {self.dqn.epsilon:.2f}, '
+                                 f'average_reward = {reward_sum / action_cnt:.2f}, '
+                                 f'average_score = {score_sum / i_episode:.2f}, '
+                                 f'best_score = {best_score}')
 
             if self.episode is not None and i_episode > self.episode:
                 break
