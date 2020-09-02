@@ -1,3 +1,4 @@
+from __future__ import absolute_import, print_function
 import curses
 import time
 import typing
@@ -44,10 +45,11 @@ class CursesSnake(object):
     }
 
     def __init__(self,
-                 shape: typing.Tuple[int, int] = (4, 4),
+                 shape: typing.Tuple[int, int] = (10, 10),
                  initial_frequency: float = 800,
                  frequency_decay: float = .6,
-                 display_info: bool = True):
+                 display_info: bool = True,
+                 snake_length: int = 3):
         """
         create snake with curses
         :param shape: games shape
@@ -59,8 +61,9 @@ class CursesSnake(object):
         self.initial_frequency: float = initial_frequency
         self.frequency_decay: float = frequency_decay
         self.display_info: bool = display_info
+        self.snake_length: int = snake_length
 
-        self.snake: Snake = Snake(self.shape)
+        self.snake: Snake = Snake(self.shape, self.snake_length)
 
         # game level
         self.level: int = 1

@@ -52,7 +52,7 @@ class Game(object):
     action_space: Action = Action
     point_type_space: Point.Type = Point.Type
 
-    def __init__(self, shape: typing.Tuple[int, int], length: int = 2):
+    def __init__(self, shape: typing.Tuple[int, int], length: int = 3):
         # 初始画布
         self.shape = shape
         self.init_length: int = length
