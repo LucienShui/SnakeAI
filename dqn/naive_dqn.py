@@ -35,10 +35,10 @@ class NaiveDeepQNetwork(AbstractDeepQNetwork):
                       metrics=[keras.losses.mean_squared_error])
         return model
 
-    def _observation_list_preprocessor(self, observation_list: numpy.array) -> numpy.array:
+    def _observation_list_preprocessor(self, observation_list: numpy.ndarray) -> numpy.array:
         return observation_list
 
-    def _train(self, input_data: numpy.array, label: numpy.array) -> None:
+    def _train(self, input_data: numpy.ndarray, label: numpy.ndarray) -> None:
         self.model.fit(input_data, label, verbose=0)
 
     def _remember(self, observation: list,

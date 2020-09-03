@@ -14,7 +14,7 @@ class CNNDeepQNetwork(NaiveDeepQNetwork):
     def __init__(self, observation_shape: tuple, action_dim: int, *args, **kwargs):
         super().__init__(observation_shape, action_dim, *args, **kwargs)
 
-    def _observation_list_preprocessor(self, observation_list: numpy.array) -> numpy.array:
+    def _observation_list_preprocessor(self, observation_list: numpy.ndarray) -> numpy.array:
         shape: list = list(observation_list.shape) + [1]
         return observation_list.reshape(shape) / Point.Type.MAX
 

@@ -32,10 +32,10 @@ class AbstractDeepQNetwork:
     def _create_model(self, input_shape: tuple, output_dim: int, learning_rate: float) -> keras.Model:
         raise NotImplementedError
 
-    def _observation_list_preprocessor(self, observation_list: numpy.array) -> numpy.array:
+    def _observation_list_preprocessor(self, observation_list: numpy.ndarray) -> numpy.array:
         raise NotImplementedError
 
-    def _train(self, input_data: numpy.array, label: numpy.array) -> None:
+    def _train(self, input_data: numpy.ndarray, label: numpy.ndarray) -> None:
         raise NotImplementedError
 
     def _remember(self, observation: list,
@@ -63,8 +63,8 @@ class AbstractDeepQNetwork:
             return self.action(observation)
 
     def action(self, observation: list) -> int:
-        observation_input: numpy.array = numpy.array([observation])
-        prediction: numpy.array = self.model.predict(self._observation_list_preprocessor(observation_input))
+        observation_input: numpy.ndarray = numpy.array([observation])
+        prediction: numpy.ndarray = self.model.predict(self._observation_list_preprocessor(observation_input))
         return numpy.argmax(prediction, axis=1)[0]
 
     def fit(self, observation: list,
@@ -89,7 +89,7 @@ class AbstractDeepQNetwork:
         :param next_observation_list: next observation list
         :return: input and label
         """
-        q_value: numpy.array = self.model.predict(self._observation_list_preprocessor(next_observation_list))
+        q_value: numpy.ndarray = self.model.predict(self._observation_list_preprocessor(next_observation_list))
 
         for i, reward in enumerate(reward_list):
             if done_list[i]:

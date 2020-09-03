@@ -19,5 +19,5 @@ class DeepQNetworkWithDrop(NaiveDeepQNetwork):
         self.replay_buffer.clear()
         return result
 
-    def _train(self, input_data: numpy.array, label: numpy.array) -> None:
+    def _train(self, input_data: numpy.ndarray, label: numpy.ndarray) -> None:
         self.model.fit(input_data, label, epochs=10, batch_size=self.batch_size, verbose=0)
