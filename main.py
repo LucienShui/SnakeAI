@@ -14,6 +14,7 @@ def get_args() -> argparse.Namespace:
     parser.add_argument('--log-level', type=str, default='info',
                         choices=['debug', 'info', 'warning', 'error', 'critical'],
                         help='debug, info, warning, error, critical, default is info')
+    parser.add_argument('--model-path', type=str, default='model.h5')
 
     args = parser.parse_args()
 
@@ -34,7 +35,7 @@ def main():
     else:
         from agent import Agent
 
-        agent: Agent = Agent(args.shape, render=args.render, episode=args.episode,
+        agent: Agent = Agent(args.shape, render=args.render, episode=args.episode, model_path=args.model_path,
                              logger_level=args.log_level, frame_size=args.frame_size)
         if args.training:
             agent.train()

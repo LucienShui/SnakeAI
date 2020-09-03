@@ -21,7 +21,7 @@ class NaiveDeepQNetwork(AbstractDeepQNetwork):
 
         self.replay_buffer: ReplayBuffer = ReplayBuffer(self.buffer_size)
 
-    def _init_model(self, input_shape: tuple, output_dim: int, learning_rate: float) -> keras.Model:
+    def _create_model(self, input_shape: tuple, output_dim: int, learning_rate: float) -> keras.Model:
         model: keras.Model = keras.models.Sequential([
             keras.layers.Flatten(input_shape=input_shape),
 
@@ -39,7 +39,7 @@ class NaiveDeepQNetwork(AbstractDeepQNetwork):
         return observation_list
 
     def _train(self, input_data: numpy.array, label: numpy.array) -> None:
-        return self.model.fit(input_data, label, verbose=0)
+        self.model.fit(input_data, label, verbose=0)
 
     def _remember(self, observation: list,
                   reward: float,

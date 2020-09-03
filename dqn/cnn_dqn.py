@@ -19,8 +19,8 @@ class CNNDeepQNetwork(NaiveDeepQNetwork):
         return observation_list.reshape(shape) / Point.Type.MAX
 
     @classmethod
-    def _init_model(cls, input_shape: typing.Tuple[int, int], output_dim: int,
-                    learning_rate: float = 1e-4) -> keras.Model:
+    def _create_model(cls, input_shape: typing.Tuple[int, int], output_dim: int,
+                      learning_rate: float = 1e-4) -> keras.Model:
         model: keras.Model = keras.models.Sequential([
             keras.layers.Conv2D(8, (3, 3), activation=keras.activations.relu,
                                 input_shape=(input_shape[0], input_shape[1], 1)),

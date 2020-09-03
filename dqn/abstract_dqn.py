@@ -27,9 +27,9 @@ class AbstractDeepQNetwork:
         self.learning_rate: float = learning_rate
 
         self.time_step: int = 0
-        self.model = self._init_model(self.observation_shape, self.action_dim, self.learning_rate)
+        self.model = self._create_model(self.observation_shape, self.action_dim, self.learning_rate)
 
-    def _init_model(self, input_shape: tuple, output_dim: int, learning_rate: float) -> keras.Model:
+    def _create_model(self, input_shape: tuple, output_dim: int, learning_rate: float) -> keras.Model:
         raise NotImplementedError
 
     def _observation_list_preprocessor(self, observation_list: numpy.array) -> numpy.array:
@@ -75,12 +75,20 @@ class AbstractDeepQNetwork:
         self._remember(observation, reward, done, action, next_observation)
 
         if self._need_training():
+            self.time_step += 1
             self._train(*self._preprocess(*self._sample()))
 
     def _preprocess(self, observation_list, reward_list, done_list,
                     action_list, next_observation_list) -> (numpy.array, numpy.array):
-        self.time_step += 1
-
+        """
+        get input and label
+        :param observation_list: observation list
+        :param reward_list: reward list
+        :param done_list: donw list
+        :param action_list: action list
+        :param next_observation_list: next observation list
+        :return: input and label
+        """
         q_value: numpy.array = self.model.predict(self._observation_list_preprocessor(next_observation_list))
 
         for i, reward in enumerate(reward_list):

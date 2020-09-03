@@ -7,7 +7,7 @@ import time
 import numpy
 
 from core import Reward
-from dqn import DeepQNetworkWithDrop as DeepQNetwork
+from dqn import DoubleDeepQNetwork as DeepQNetwork
 from dqn.param import Param
 from gym.envs import SnakeEnv
 

@@ -21,4 +21,3 @@ class DeepQNetworkWithDrop(NaiveDeepQNetwork):
 
     def _train(self, input_data: numpy.array, label: numpy.array) -> None:
         self.model.fit(input_data, label, epochs=10, batch_size=self.batch_size, verbose=0)
-
